@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Conexão WhatsApp</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e6f0ff, #ffffff);
+      display: flex;
+      min-height: 100vh;
+      color: #1a1a1a;
+    }
+    .container { display: flex; width: 100%; }
+    .sidebar {
+      width: 250px;
+      background-color: #1e3a8a;
+      padding: 20px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar h2 { margin-bottom: 30px; }
+    .sidebar nav a {
+      color: white;
+      text-decoration: none;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      transition: 0.3s;
+      padding: 8px 0;
+    }
+    .sidebar nav a:hover { color: #60a5fa; }
+    .content {
+      flex-grow: 1;
+      padding: 40px;
+      transition: all 0.3s ease-in-out;
+    }
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    .hidden { display: none; }
+    canvas.qr-img { max-width: 200px; margin: 20px auto; display: block; }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .btn {
+      background-color: #1e40af;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+    .btn:hover { background-color: #1d4ed8; }
+    lottie-player {
+      width: 200px;
+      height: 200px;
+      margin: auto;
+    }
+    .form-group { margin-bottom: 20px; }
+    .nicho-imagens img { cursor: pointer; }
+    .success-message {
+      background-color: #28a745;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2 id="painelTitulo">📊 Painel</h2>
+      <nav>
+        <a href="#" onclick="showSection('whatsapp')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+        <a href="#" onclick="showSection('conversas')"><i class="fa-solid fa-comments"></i> Conversas</a>
+        <a href="#" onclick="showSection('config')"><i class="fa-solid fa-gear"></i> Configurações</a>
+        <a href="#" onclick="showSection('config-ia')"><i class="fa-solid fa-brain"></i> IA</a>
+      </nav>
+    </aside>
+
+
+
+
+    <main class="content">
+      <section id="whatsapp" class="card">
+        <h3>📲 Conectar WhatsApp</h3>
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8" />
+          <title>Gerar Instância e QR Code</title>
+          <style>
+            body {
+              font-family: sans-serif;
+              text-align: center;
+              padding: 40px;
+              background-color: #f7f7f7;
+            }
+            input {
+              margin: 10px;
+              padding: 10px;
+              width: 250px;
+              font-size: 16px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+            }
+            button {
+              padding: 12px 20px;
+              font-size: 16px;
+              background-color: #0066ff;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+            }
+            button:hover {
+              background-color: #0052cc;
+            }
+            #qrcode {
+              margin-top: 30px;
+            }
+          </style>
+        </head>
+        <body>
+       
+          <h2>Gerar QR Code da Instância</h2>
+       
+          <input type="text" id="nome" placeholder="Digite seu nome" required />
+          <br />
+          <input type="text" id="numero" placeholder="Digite seu WhatsApp (ex: 5511999999999)" required />
+          <br />
+          <button onclick="gerarInstancia()">Gerar QR Code</button>
+       
+          <div id="qrcode"></div>
+       
+          <script>
+            async function gerarInstancia() {
+              const nome = document.getElementById("nome").value.trim();
+              const numero = document.getElementById("numero").value.trim();
+              const qrcodeDiv = document.getElementById("qrcode");
+              qrcodeDiv.innerHTML = "Gerando...";
+       
+              if (!nome || !numero) {
+                qrcodeDiv.innerHTML = "Por favor, preencha os dois campos.";
+                return;
+              }
+       
+              try {
+                const response = await fetch("https://n8n.agilizeia.tech/webhook/instancia-criar", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ nome, numero })
+                });
+       
+                const data = await response.json();
+                console.log("Resposta da API:", data);
+       
+                let qrcodeData = data.qrcode;
+                const hash = data.hash || '';
+       
+                if (qrcodeData) {
+                  // Correção: remove duplicação do prefixo base64 se existir
+                  const prefix = "data:image/png;base64,";
+                  const count = qrcodeData.split(prefix).length - 1;
+       
+                  if (count > 1) {
+                    // Remove prefixos duplicados
+                    const base64 = qrcodeData.split(prefix).pop();
+                    qrcodeData = prefix + base64;
+                  }
+       
+                  qrcodeDiv.innerHTML = `
+                    <p><strong>Instância criada com sucesso!</strong></p>
+                    <img src="${qrcodeData}" alt="QR Code" width="300" />
+                    <p><code>${hash}</code></p>
+                  `;
+                } else {
+                  qrcodeDiv.innerHTML = "QR Code não encontrado ou URL inválida.";
+                }
+       
+              } catch (error) {
+                console.error(error);
+                qrcodeDiv.innerHTML = "Erro ao gerar a instância.";
+              }
+            }
+          </script>
+        </body>
+        </html>
+       
+      </section>
+
+
+
+
+      <section id="conversas" class="card hidden">
+        <h3>💬 Histórico de Conversas</h3>
+        <p>Aqui aparecerão as conversas mais recentes.</p>
+      </section>
+
+
+
+
+      <section id="config" class="card hidden">
+        <h3>⚙️ Configurações</h3>
+        <p>Configurações gerais do sistema.</p>
+      </section>
+
+
+
+
+      <section id="config-ia" class="card hidden">
+        <h3>🧠 Configuração da IA</h3>
+        <p>Escolha as opções para configurar a IA do seu negócio.</p>
+
+
+
+
+        <form id="formConfigIA" onsubmit="event.preventDefault(); salvarConfigIA();">
+          <div class="form-group">
+            <label for="nicho">Escolha o Nicho:</label>
+            <select id="nicho" name="nicho" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd;">
+              <option value="saude">Saúde & Bem-estar</option>
+              <option value="ecommerce">E-commerce</option>
+              <option value="negocio_local">Negócio Local</option>
+              <option value="educacao">Educação</option>
+            </select>
+            <div class="nicho-imagens" style="display: flex; justify-content: space-around; margin-top: 10px;">
+              <img src="path_to_image/saude.png" alt="Saúde" id="saude-image" class="nicho-image" style="width: 40px; height: 40px;">
+              <img src="path_to_image/ecommerce.png" alt="E-commerce" id="ecommerce-image" class="nicho-image" style="width: 40px; height: 40px;">
+              <img src="path_to_image/negocio_local.png" alt="Negócio Local" id="negocio-local-image" class="nicho-image" style="width: 40px; height: 40px;">
+              <img src="path_to_image/educacao.png" alt="Educação" id="educacao-image" class="nicho-image" style="width: 40px; height: 40px;">
+            </div>
+          </div>
+
+
+
+
+          <div class="form-group">
+            <label for="modelo">Escolha o Modelo da IA:</label>
+            <select id="modelo" name="modelo" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd;">
+              <option value="vendedor">Vendedor</option>
+              <option value="suporte">Suporte</option>
+              <option value="atendente">Atendente</option>
+              <option value="recepcionista">Recepcionista</option>
+            </select>
+          </div>
+
+
+
+
+          <div class="form-group">
+            <label for="tom">Escolha o Tom da IA:</label>
+            <select id="tom" name="tom" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd;">
+              <option value="formal">Formal</option>
+              <option value="informal">Informal</option>
+            </select>
+          </div>
+
+
+
+
+          <button type="submit" class="btn">Salvar Configurações</button>
+        </form>
+
+
+
+
+        <div class="success-message" id="successMessage">
+          Configurações salvas com sucesso!
+        </div>
+      </section>
+    </main>
+  </div>
+
+
+
+
+  <script>
+    function salvarConfigIA() {
+      const nicho = document.getElementById('nicho').value;
+      const modelo = document.getElementById('modelo').value;
+      const tom = document.getElementById('tom').value;
+
+
+
+
+      // Salvar no banco e no webhook
+      fetch('https://n8n.agilizeia.tech/webhook/atualizar-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nicho, modelo, tom })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Dados recebidos do webhook:', data); // Verifique o que retorna
+        if (data.success) {
+          document.getElementById('successMessage').style.display = 'block';  // Torna a mensagem visível
+          document.getElementById('formConfigIA').reset();
+        } else {
+          console.error('Erro ao salvar as configurações.');
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao salvar configurações da IA:', error);
+      });
+    }
+
+
+
+
+    function showSection(section) {
+      const sections = ['whatsapp', 'conversas', 'config', 'config-ia'];
+      sections.forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById(section).classList.remove('hidden');
+    }
+
+
+
+
+    // Exibir a seção inicial
+    showSection('whatsapp');
+  </script>
+</body>
+</html>
